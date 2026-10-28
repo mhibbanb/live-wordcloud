@@ -5,24 +5,29 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Live Question</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="style.css">
 </head>
-<body class="dark">
-  <main class="landing">
-    <div class="brand">LIVE<span>Q</span></div>
-    <h1>Tanya audiens.<br><em>Lihat jawabannya live.</em></h1>
-    <p>Buat satu pertanyaan, bagikan kode atau QR, lalu semua jawaban muncul real-time di layar.</p>
-    <div class="card create">
-      <label>Pertanyaan pertama</label>
-      <input id="q" value="Apa yang paling ingin kalian ubah tahun ini?">
-      <button id="create">Buat Live Room →</button>
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-4">
+  <main class="max-w-md w-full space-y-6">
+    <div class="text-2xl font-bold tracking-wider">LIVE<span class="text-blue-500">Q</span></div>
+    
+    <div class="space-y-2">
+      <h1 class="text-3xl font-extrabold leading-tight">Tanya audiens.<br><em class="not-italic text-blue-400">Lihat jawabannya live.</em></h1>
+      <p class="text-gray-400 text-sm">Buat satu pertanyaan, bagikan kode atau QR, lalu semua jawaban muncul real-time di layar.</p>
     </div>
-    <div class="how">
+
+    <div class="bg-gray-800 p-5 rounded-xl border border-gray-700 space-y-4 shadow-xl">
+      <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide">Pertanyaan pertama</label>
+      <input id="q" value="Apa yang paling ingin kalian ubah tahun ini?" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-blue-500">
+      <button id="create" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-lg transition duration-200">Buat Live Room →</button>
+    </div>
+
+    <div class="flex justify-between text-xs text-gray-500 border-t border-gray-800 pt-4">
       <span>01 Buat room</span>
       <span>02 Bagikan QR</span>
       <span>03 Jawaban muncul</span>
     </div>
   </main>
+
   <script>
     document.getElementById('create').onclick = async () => {
       const question = document.getElementById('q').value;
