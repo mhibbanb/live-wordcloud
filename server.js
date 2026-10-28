@@ -11,6 +11,9 @@ const io = new Server(server);
 const PORT = process.env.PORT || 3000;
 const rooms = new Map();
 
+app.use(express.json());
+
+// Menyajikan semua file statis (HTML, CSS, JS) langsung dari root directory
 app.use(express.static(__dirname));
 
 app.get('/', (req, res) => {
@@ -28,9 +31,6 @@ function getLocalIp() {
   }
   return 'localhost';
 }
-
-app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
 
 function code() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -59,7 +59,6 @@ app.get('/api/rooms/:id', async (req, res) => {
   const localIp = getLocalIp();
   let host = req.get('host') || `localhost:${PORT}`;
 
-  // Jika diakses dari localhost atau 127.0.0.1, gunakan IP LAN untuk URL dan QR Code
   if (host.startsWith('localhost') || host.startsWith('127.0.0.1')) {
     host = host.replace(/^(localhost|127\.0\.0\.1)/, localIp);
   }
