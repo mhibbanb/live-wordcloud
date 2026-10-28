@@ -11,6 +11,12 @@ const io = new Server(server);
 const PORT = process.env.PORT || 3000;
 const rooms = new Map();
 
+app.use(express.static(__dirname));
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 function getLocalIp() {
   const interfaces = os.networkInterfaces();
   for (const name of Object.keys(interfaces)) {
