@@ -3,34 +3,14 @@ const http = require('http');
 const { Server } = require('socket.io');
 const QRCode = require('qrcode');
 const path = require('path');
-const os = require('os');
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
-const PORT = process.env.PORT || 3000;
 const rooms = new Map();
 
 app.use(express.json());
-
-// Menyajikan semua file statis (HTML, CSS, JS) langsung dari root directory
-app.use(express.static(__dirname));
-
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-function getLocalIp() {
-  const interfaces = os.networkInterfaces();
-  for (const name of Object.keys(interfaces)) {
-    for (const iface of interfaces[name]) {
-      if (iface.family === 'IPv4' && !iface.internal) {
-        return iface.address;
-      }
-    }
-  }
-  return 'localhost';
-}
+app.use(express.static(path.join(__dirname, '../')));
 
 function code() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -39,9 +19,11 @@ function code() {
   while (rooms.has(out));
   return out;
 }
+
 function getRoom(id) {
   return rooms.get(String(id || '').toUpperCase());
 }
+
 function snapshot(room) {
   return { id: room.id, question: room.question, active: room.active, answers: room.answers, count: room.answers.length };
 }
@@ -56,17 +38,11 @@ app.post('/api/rooms', (req, res) => {
 app.get('/api/rooms/:id', async (req, res) => {
   const room = getRoom(req.params.id);
   if (!room) return res.status(404).json({ error: 'Room tidak ditemukan' });
-  const localIp = getLocalIp();
-  let host = req.get('host') || `localhost:${PORT}`;
-
-  if (host.startsWith('localhost') || host.startsWith('127.0.0.1')) {
-    host = host.replace(/^(localhost|127\.0\.0\.1)/, localIp);
-  }
-
+  const host = req.get('host');
   const base = `${req.protocol}://${host}`;
   const joinUrl = `${base}/join.html?room=${room.id}`;
   const qr = await QRCode.toDataURL(joinUrl, { width: 360, margin: 2 });
-  res.json({ ...snapshot(room), joinUrl, qr, localIp });
+  res.json({ ...snapshot(room), joinUrl, qr });
 });
 
 io.on('connection', socket => {
@@ -113,16 +89,5 @@ io.on('connection', socket => {
 function countAudience(roomId) {
   let n = 0; for (const [, s] of io.sockets.sockets) if (s.data.room === roomId && s.data.role === 'audience') n++; return n;
 }
-
-setInterval(() => {
-  const now = Date.now(); for (const [id, r] of rooms) if (now - r.createdAt > 6 * 60 * 60 * 1000) rooms.delete(id);
-}, 60 * 60 * 1000);
-
-server.listen(PORT, '0.0.0.0', () => {
-  const localIp = getLocalIp();
-  console.log(`Live WordCloud running at:`);
-  console.log(`  - Local:   http://localhost:${PORT}`);
-  console.log(`  - Network: http://${localIp}:${PORT}`);
-});
 
 module.exports = app;
